@@ -14,12 +14,12 @@ import {
 import { CreateUserDto } from './dtos/create-user.dto';
 import { UpdateUserDto } from './dtos/update-use.dto';
 import { UsersService } from './users.service';
-import { Serialize } from 'src/interceptors/serialize.interceptor';
+import { Serialize } from '../interceptors/serialize.interceptor';
 import { UserDto } from './dtos/user.dto';
 import { AuthService } from './auth.service';
 import { CurrentUser } from './decorators/current-user.decorator';
 import { User } from './user.entity';
-import { AuthGuard } from 'src/guards/auth.guard';
+import { AuthGuard } from '../guards/auth.guard'
 
 
 @Controller('auth')
@@ -29,15 +29,6 @@ export class UsersController {
 		private usersService: UsersService,
 		private authService: AuthService
 	) {}
-
-	// @Get('/whoami')
-	// async whoAmI(@Session() session: any) {
-	// 	const whoAmIUser = await this.usersService.findOne(session.userId);
-
-	// 	if (!whoAmIUser) {
-	// 		throw new NotFoundException('Nobody is Logged In');
-	// 	}
-	// }
 
 	@Get('/whoami')
 	@UseGuards(AuthGuard)
