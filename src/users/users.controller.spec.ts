@@ -11,8 +11,6 @@ describe('UsersController', () => {
   let fakeUsersService: Partial<UsersService>;
 
   beforeEach(async () => {
-
-    const users: User[] = [];
     fakeUsersService = {
       find: (email: string) => {
         return Promise.resolve([
@@ -30,28 +28,14 @@ describe('UsersController', () => {
           password: 'asdf',
         } as User)
       },
-      // update: () => {},
-      // remove: () => {},
-
     }
 
     fakeAuthService = {
-      // signup: (email: string, password: string) => {
-      //   const user = { id: Math.floor(Math.random() * 999999), email, password } as User;
-      //   users.push(user);
-      //   return Promise.resolve(user);
-      // },
-      // signin: (email: string, password: string) => {
-      //   const filteredUsers = users.filter(user => user.email === email);
-      //   if (filteredUsers.length === 0) {
-      //     throw new Error('User not found');
-      //   }
-      //   const user = filteredUsers[0];
-      //   if (user.password !== password) {
-      //     throw new Error('Incorrect password');
-      //   }
-      //   return Promise.resolve(user);
-      // },
+      signin: (email: string, password: string) => {
+        return Promise.resolve({
+          id: 1, email, password
+        } as User)
+      }
     }
 
 
@@ -83,8 +67,27 @@ describe('UsersController', () => {
     expect(users[0].email).toEqual('asdf@asdf.com');
   })
 
+  it('findUser returns a single user with the given id', async () => {
+    const user = await controller.findUser('1');
+    expect(user).toBeDefined();
+  })
+
   it('findUser throws an error is user with given id is not found', async () => {
     fakeUsersService.findOne = () => null;
     await expect(controller.findUser('1')).rejects.toThrow(NotFoundException);
+  })
+
+  it('singin updates session object and returns user', async () => {
+    const session = { userId: -10 };
+    const user = await controller.signin(
+      { 
+        email: 'asdf@asdf.com',
+        password: 'asdf' 
+      }, 
+      session
+    );
+
+    expect(user.id).toEqual(1);
+    expect(session.userId).toEqual(1);
   })
 });
