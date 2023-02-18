@@ -30,12 +30,19 @@ export class ReportsService {
         return this.repo.save(report);
     }
 
-    async createEstimate(estimateDto: GetEstimateDto) {
+    async createEstimate({ make, model, lng, lat, mileage, year }: GetEstimateDto) {
         return this.repo
             .createQueryBuilder()
-            .select('*')
-            .where('make = :make', { make: estimateDto.make })
-            .andWhere('model = :model', { model: estimateDto.model })
-            .getRawMany()
+            .select('AVG(price)', 'price')
+            .where('make = :make', { make })
+            .andWhere('model = :model', { model })
+            .andWhere('lng - :lng BETWEEN -5 and 5', { lng })
+            .andWhere('lat - :lat BETWEEN -5 and 5', { lat })
+            .andWhere('year - :year BETWEEN -3 and 3', { year })
+            .andWhere('approved IS TRUE')
+            .orderBy('ABS(mileage - :mileage)', 'DESC')
+            .setParameters({ mileage })
+            .limit(3)
+            .getRawOne()
     }
 }
