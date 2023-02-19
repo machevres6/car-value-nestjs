@@ -6,9 +6,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
 import { ReportsModule } from './reports/reports.module';
-import { User } from './users/user.entity';
-import { Report } from './reports/report.entity';
-// eslint-disable-next-line @typescript-eslint/no-var-requires
+import { DataSource } from 'typeorm';
 const cookieSession = require('cookie-session')
 
 @Module({
@@ -17,19 +15,24 @@ const cookieSession = require('cookie-session')
       isGlobal: true,
       envFilePath: `.env.${process.env.NODE_ENV}`
     }),
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: async (configService: ConfigService) => ({
+        type: 'sqlite',
+        database: configService.get('DB_NAME'),
+        entities: [configService.get('DB_ENTITIES')],
+        synchronize: false,
+        migrations: ['migrations/*.js'],
+        migrationsTableName: 'migrations',
+      }),
+      dataSourceFactory: async (options) => {
+        const dataSource = await new DataSource(options).initialize();
+        return dataSource;
+      },
+    }),
     UsersModule,
     ReportsModule,
-    TypeOrmModule.forRootAsync({
-      inject: [ConfigService],
-      useFactory: (config: ConfigService) => {
-        return {
-          type: 'sqlite',
-          database: config.get<string>('DB_NAME'),
-          synchronize: true,
-          entities: [User, Report],
-        }
-      }
-    })
   ],
   controllers: [AppController],
   providers: [
@@ -43,10 +46,15 @@ const cookieSession = require('cookie-session')
   ],
 })
 export class AppModule {
+  constructor(
+    private configService: ConfigService,
+    private dataSource: DataSource
+  ) {}
+
   configure(consumer: MiddlewareConsumer) {
     consumer.apply(
       cookieSession({
-        keys: ['asdasd'],
+        keys: [this.configService.get('COOKIE_KEY')],
       })
     ).forRoutes('*');
   }

@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { NotFoundException } from '@nestjs/common';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
-import { AuthService } from './auth.service';
+import { AuthService } from './auth/auth.service';
 import { User } from './user.entity';
 
 describe('UsersController', () => {
@@ -15,8 +15,8 @@ describe('UsersController', () => {
       find: (email: string) => {
         return Promise.resolve([
           {
-            id: 1, 
-            email, 
+            id: 1,
+            email,
             password: 'asdf'
           } as User
         ]);
@@ -80,10 +80,10 @@ describe('UsersController', () => {
   it('singin updates session object and returns user', async () => {
     const session = { userId: -10 };
     const user = await controller.signin(
-      { 
+      {
         email: 'asdf@asdf.com',
-        password: 'asdf' 
-      }, 
+        password: 'asdf'
+      },
       session
     );
 

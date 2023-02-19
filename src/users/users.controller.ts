@@ -1,22 +1,22 @@
-import { 
+import {
 	Body,
 	Controller,
-	Delete, 
-	Get, 
-	Patch, 
-	Post, 
-	Param, 
-	Query, 
-	NotFoundException, 
-	Session, 
-	UseGuards 
+	Delete,
+	Get,
+	Patch,
+	Post,
+	Param,
+	Query,
+	NotFoundException,
+	Session,
+	UseGuards
 } from '@nestjs/common';
 import { CreateUserDto } from './dtos/create-user.dto';
 import { UpdateUserDto } from './dtos/update-use.dto';
 import { UsersService } from './users.service';
 import { Serialize } from '../interceptors/serialize.interceptor';
 import { UserDto } from './dtos/user.dto';
-import { AuthService } from './auth.service';
+import { AuthService } from './auth/auth.service';
 import { CurrentUser } from './decorators/current-user.decorator';
 import { User } from './user.entity';
 import { AuthGuard } from '../guards/auth.guard'
@@ -28,7 +28,7 @@ export class UsersController {
 	constructor(
 		private usersService: UsersService,
 		private authService: AuthService
-	) {}
+	) { }
 
 	@Get('/whoami')
 	@UseGuards(AuthGuard)
@@ -55,7 +55,7 @@ export class UsersController {
 		session.userId = null;
 	}
 
-	
+
 	@Get('/:id')
 	async findUser(@Param('id') id: string) {
 		const user = await this.usersService.findOne(parseInt(id));
